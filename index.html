@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Servicio del Campo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jw: {
+                            blue: '#4A6DA7',
+                            darkBlue: '#1F3C68',
+                            lightBlue: '#EBF1F9',
+                            gold: '#D9A74A',
+                            accent: '#2B538A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between antialiased selection:bg-jw-blue selection:text-white">
+
+    <header class="bg-jw-darkBlue text-white shadow-md sticky top-0 z-30 border-b border-blue-900/50">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-jw-blue p-2 rounded-xl text-white shadow-inner">
+                    <i class="fa-solid fa-book-open text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg leading-tight">Mi Registro de Servicio</h1>
+                    <p class="text-xs text-blue-200 flex items-center gap-1" id="serviceYearBadge">
+                        <i class="fa-regular fa-calendar-check text-[10px]"></i> Año de Servicio 2025-2026
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleDarkMode()" id="themeToggleBtn" class="p-2.5 rounded-full bg-white/10 text-amber-300 hover:text-white hover:bg-white/20 transition flex items-center justify-center" title="Cambiar Tema (Claro/Oscuro)">
+                    <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
+                </button>
+                <!-- Role Selector Badge -->
+                <button onclick="openRoleModal()" class="text-xs bg-jw-blue hover:bg-jw-accent text-white font-medium px-3 py-1.5 rounded-full transition flex items-center gap-1.5 shadow-sm border border-white/20">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span id="headerRoleBadge">Cargando...</span>
+                </button>
+                <!-- Secret Admin Modal -->
+                <button onclick="openAdminModal()" title="Administrar Novedades" class="bg-blue-950 hover:bg-black/40 p-2 rounded-full text-blue-200 hover:text-white transition">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 pt-4 w-full space-y-4 flex-grow">
+
+        <div class="bg-blue-50/80 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700 rounded-2xl p-3.5 shadow-sm flex items-start gap-3">
+            <div class="text-jw-blue dark:text-blue-400 text-lg pt-0.5">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                <p class="font-semibold text-jw-darkBlue dark:text-blue-300">Pautas Oficiales Vigentes (Cuerpo Gobernante)</p>
+                <p>Año de Servicio: <strong>1 de Septiembre al 31 de Agosto</strong>. Los <em>Publicadores</em> confirman si participaron (Sí/No) y cursos bíblicos. Los <em>Precursores</em> reportan horas de servicio.</p>
+            </div>
+        </div>
+
+        <section id="announcementsSection" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-amber-200 dark:border-amber-900/50 relative overflow-hidden hidden">
+            <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-amber-100 dark:border-slate-700">
+                <div class="flex items-center space-x-2 text-jw-darkBlue dark:text-amber-400">
+                    <i class="fa-solid fa-bullhorn text-amber-500 text-lg animate-pulse"></i>
+                    <h2 class="font-bold text-sm sm:text-base">Anuncios y Novedades de Congregación</h2>
+                </div>
+                <span class="text-[10px] uppercase font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 px-2.5 py-0.5 rounded-full">Avisos</span>
+            </div>
+            <div id="announcementsList" class="space-y-2.5">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <section class="bg-gradient-to-br from-jw-darkBlue via-jw-accent to-jw-blue rounded-2xl text-white p-5 shadow-lg relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-200" id="currentMonthYearLabel">Cargando Mes...</span>
+                    <h3 class="text-xl sm:text-2xl font-bold flex items-center gap-2" id="roleTitleDisplay">
+                        Publicador
+                    </h3>
+                </div>
+                <div class="text-right" id="mainMetricDisplay">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Precursor Progress Meter (Hidden for regular publishers) -->
+            <div id="precursorProgressBox" class="space-y-2 pt-2 border-t border-white/15">
+                <div class="flex justify-between items-center text-xs text-blue-100">
+                    <span id="progressPercentageText">0% completado</span>
+                    <span id="hoursRemainingText" class="font-semibold text-amber-300"></span>
+                </div>
+                <div class="w-full bg-blue-950/60 rounded-full h-3 p-0.5 border border-white/20">
+                    <div id="progressBar" class="bg-gradient-to-r from-amber-400 to-amber-300 h-2 rounded-full transition-all duration-500 w-0 shadow-sm"></div>
+                </div>
+            </div>
+
+            <!-- Publicador Minister Box (Shown for regular publishers) -->
+            <div id="publisherParticipationBox" class="pt-3 border-t border-white/15 flex items-center justify-between hidden">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+                    <span class="text-xs sm:text-sm font-medium">¿Participaste en la predicación este mes?</span>
+                </div>
+                <button id="toggleParticipationBtn" onclick="togglePublisherParticipation()" class="px-4 py-1.5 rounded-full text-xs font-bold transition shadow-sm bg-emerald-500 text-white">
+                    SÍ PARTICIPÉ
+                </button>
+            </div>
+        </section>
+
+        <section id="stopwatchSection" class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-100 dark:bg-slate-700 p-3 rounded-xl text-jw-blue dark:text-blue-300">
+                    <i class="fa-solid fa-stopwatch text-2xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Cronómetro de Predicación</h4>
+                    <p class="text-2xl font-extrabold font-mono text-slate-800 dark:text-slate-100" id="stopwatchDisplay">00:00:00</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button id="timerStartBtn" onclick="toggleStopwatch()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-play"></i> <span id="timerBtnText">Iniciar</span>
+                </button>
+                <button id="timerResetBtn" onclick="resetStopwatch()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs px-3 py-2.5 rounded-xl transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button id="timerLogBtn" onclick="logStopwatchTime()" class="flex-1 sm:flex-none bg-jw-blue hover:bg-jw-darkBlue text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm hidden">
+                    <i class="fa-solid fa-plus"></i> Añadir a Horas
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div class="flex space-x-1.5 border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
+                <button id="tabBtnLog" onclick="switchTab('log')" class="flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl bg-jw-lightBlue dark:bg-slate-700 text-jw-darkBlue dark:text-blue-300 transition">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> <span id="tabLogTitle">Anotar Servicio</span>
+                </button>
+                <button id="tabBtnHistory" onclick="switchTab('history')" class="flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> Historial
+                </button>
+                <button id="tabBtnReport" onclick="switchTab('report')" class="flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-paper-plane mr-1 text-emerald-600"></i> Enviar Informe
+                </button>
+            </div>
+
+            <!-- Form Tab Content -->
+            <div id="tabContentLog" class="space-y-4">
+                <form id="serviceEntryForm" onsubmit="saveServiceEntry(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Fecha</label>
+                            <input type="date" id="entryDate" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-jw-blue focus:outline-none">
+                        </div>
+
+                        <!-- Hours/Minutes Row (Hidden for Regular Publishers) -->
+                        <div id="formHoursGroup" class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Horas</label>
+                                <input type="number" id="entryHours" min="0" max="24" value="1" placeholder="0" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-jw-blue focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Minutos</label>
+                                <input type="number" id="entryMinutes" min="0" max="59" step="5" value="0" placeholder="0" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-jw-blue focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Cursos Bíblicos en el Mes</label>
+                            <div class="flex items-center">
+                                <button type="button" onclick="adjustStudies(-1)" class="bg-slate-200 dark:bg-slate-700 px-3 py-2.5 rounded-l-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-600">-</button>
+                                <input type="number" id="entryStudies" min="0" value="0" readonly class="w-full text-center bg-slate-50 dark:bg-slate-900 border-y border-slate-300 dark:border-slate-600 p-2.5 text-sm font-bold">
+                                <button type="button" onclick="adjustStudies(1)" class="bg-slate-200 dark:bg-slate-700 px-3 py-2.5 rounded-r-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-600">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Notas / Observaciones (Opcional)</label>
+                            <input type="text" id="entryNotes" placeholder="Ej. Predicación pública, territorio rural" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-jw-blue focus:outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-jw-blue hover:bg-jw-darkBlue text-white font-bold py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> <span id="submitBtnLabel">Guardar Registro</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- History Tab Content -->
+            <div id="tabContentHistory" class="hidden space-y-3">
+                <div id="historyList" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                    <!-- Dynamic entries -->
+                </div>
+            </div>
+
+            <div id="tabContentReport" class="hidden space-y-4">
+                <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-4">
+                    <h3 class="font-bold text-sm text-emerald-900 dark:text-emerald-300 flex items-center gap-2 mb-2">
+                        <i class="fa-regular fa-envelope text-emerald-600 dark:text-emerald-400 text-lg"></i>
+                        Mensaje del Informe listo para copiar
+                    </h3>
+                    <p class="text-xs text-emerald-800 dark:text-emerald-400 mb-3">
+                        Generado con el mes correspondiente.
+                    </p>
+                    <div id="formattedReportPreview" class="bg-white dark:bg-slate-900 border border-emerald-200 dark:border-slate-700 rounded-xl p-4 text-sm font-sans whitespace-pre-wrap text-slate-800 dark:text-slate-100 shadow-inner leading-relaxed">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="copyReportToClipboard()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-regular fa-copy text-base"></i> Copiar Informe al Portapapeles
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="max-w-3xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
+        <p>Holaa uwuwuwuw - programa de molly marta</p>
+    </footer>
+
+    <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-base sm:text-lg text-jw-darkBlue dark:text-blue-300 flex items-center gap-2">
+                    <i class="fa-solid fa-id-card"></i> Configurar Tipo de Publicador
+                </h3>
+                <button onclick="closeRoleModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 dark:text-slate-300">
+                Selecciona tu privilegio de servicio activo durante este mes para adaptar el formato del informe:
+            </p>
+
+            <div class="space-y-2">
+                <label class="flex items-start p-3 border rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-700 cursor-pointer transition border-slate-200 dark:border-slate-700">
+                    <input type="radio" name="publisherRole" value="publicador" class="mt-1 text-jw-blue focus:ring-jw-blue">
+                    <div class="ml-3">
+                        <div class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Publicador de Congregación</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">NO cuenta ni reporta horas. Solo indica si participó en el ministerio y cursos bíblicos.</div>
+                    </div>
+                </label>
+
+                <label class="flex items-start p-3 border rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-700 cursor-pointer transition border-slate-200 dark:border-slate-700">
+                    <input type="radio" name="publisherRole" value="auxiliar_campana" class="mt-1 text-jw-blue focus:ring-jw-blue">
+                    <div class="ml-3">
+                        <div class="font-bold text-xs sm:text-sm text-jw-darkBlue dark:text-amber-400">Precursor Auxiliar (Campaña / Mes Especial)</div>
+                        <div class="text-[11px] text-amber-600 font-semibold">Meta: 15 Horas al mes</div>
+                    </div>
+                </label>
+
+                <label class="flex items-start p-3 border rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-700 cursor-pointer transition border-slate-200 dark:border-slate-700">
+                    <input type="radio" name="publisherRole" value="auxiliar" class="mt-1 text-jw-blue focus:ring-jw-blue">
+                    <div class="ml-3">
+                        <div class="font-bold text-xs sm:text-sm text-jw-darkBlue dark:text-blue-300">Precursor Auxiliar Indefinido</div>
+                        <div class="text-[11px] text-blue-600 font-semibold">Meta: 30 Horas al mes</div>
+                    </div>
+                </label>
+
+                <label class="flex items-start p-3 border rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-700 cursor-pointer transition border-slate-200 dark:border-slate-700">
+                    <input type="radio" name="publisherRole" value="regular" class="mt-1 text-jw-blue focus:ring-jw-blue">
+                    <div class="ml-3">
+                        <div class="font-bold text-xs sm:text-sm text-jw-darkBlue dark:text-indigo-300">Precursor Regular</div>
+                        <div class="text-[11px] text-indigo-600 font-semibold">Meta: 50 Horas al mes (600h anuales)</div>
+                    </div>
+                </label>
+
+                <label class="flex items-start p-3 border rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-700 cursor-pointer transition border-slate-200 dark:border-slate-700">
+                    <input type="radio" name="publisherRole" value="especial" class="mt-1 text-jw-blue focus:ring-jw-blue">
+                    <div class="ml-3">
+                        <div class="font-bold text-xs sm:text-sm text-jw-darkBlue dark:text-purple-300">Precursor Especial / Misionero</div>
+                        <div class="text-[11px] text-purple-600 font-semibold">Meta: 100 Horas al mes</div>
+                    </div>
+                </label>
+            </div>
+
+            <button onclick="saveRoleSelection()" class="w-full bg-jw-blue hover:bg-jw-darkBlue text-white font-bold py-2.5 rounded-xl transition text-sm">
+                Guardar Configuración
+            </button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-base sm:text-lg text-jw-darkBlue dark:text-blue-300 flex items-center gap-2">
+                    <i class="fa-solid fa-bullhorn text-amber-500"></i> Panel de Administración
+                </h3>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Passcode Prompt (No hint shown) -->
+            <div id="adminAuthBox" class="space-y-3">
+                <p class="text-xs text-slate-600 dark:text-slate-300">
+                    Ingresa la clave de acceso para administrar los anuncios o cambiar la clave:
+                </p>
+                <div class="flex gap-2">
+                    <input type="password" id="adminPassInput" placeholder="Clave de acceso" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-jw-blue focus:outline-none">
+                    <button onclick="verifyAdminPass()" class="bg-jw-blue text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-jw-darkBlue transition">Entrar</button>
+                </div>
+                <p id="adminAuthError" class="text-xs text-red-500 font-semibold hidden">Clave incorrecta. Inténtalo de nuevo.</p>
+            </div>
+
+            <!-- Admin Panel Content (Unlocked) -->
+            <div id="adminPanelContent" class="hidden space-y-4">
+                <!-- Tab sub-navigation in Admin -->
+                <div class="flex border-b border-slate-200 dark:border-slate-700 pb-2 space-x-2 text-xs">
+                    <button onclick="switchAdminTab('announcements')" id="adminTabBtnAnnouncements" class="font-bold text-jw-blue dark:text-blue-300 border-b-2 border-jw-blue pb-1">Anuncios</button>
+                    <button onclick="switchAdminTab('settings')" id="adminTabBtnSettings" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 pb-1">Cambiar Clave</button>
+                </div>
+
+                <!-- Admin Announcements Form & List -->
+                <div id="adminTabContentAnnouncements" class="space-y-4">
+                    <form id="announcementForm" onsubmit="saveAnnouncement(event)" class="space-y-3 border-b border-slate-200 dark:border-slate-700 pb-4">
+                        <input type="hidden" id="announcementEditId" value="">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Título del Anuncio</label>
+                            <input type="text" id="announcementTitle" placeholder="Ej. Visita del Superintendente de Circuito" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Detalles / Mensaje</label>
+                            <textarea id="announcementBody" rows="2" placeholder="Ej. Salidas especiales de predicación a las 9:00 AM." required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-sm"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Tipo de Aviso</label>
+                                <select id="announcementType" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-sm">
+                                    <option value="asamblea">Asamblea</option>
+                                    <option value="visita">Visita del SC</option>
+                                    <option value="campana">Campaña / Salida</option>
+                                    <option value="general">Aviso General</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="submit" id="announcementSubmitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                                    Publicar Anuncio
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 mb-2 uppercase">Anuncios Activos</h4>
+                        <div id="adminAnnouncementsList" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Security Settings -->
+                <div id="adminTabContentSettings" class="hidden space-y-3">
+                    <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase">Cambiar Clave de Administrador</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Actualiza la clave para proteger la edición de anuncios en este navegador.</p>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nueva Clave</label>
+                        <input type="password" id="newAdminPassInput" placeholder="Ingresa nueva clave" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-2 text-sm">
+                    </div>
+                    <button onclick="updateAdminPasscode()" class="w-full bg-jw-blue hover:bg-jw-darkBlue text-white font-bold py-2 rounded-xl text-xs transition">
+                        Actualizar Clave
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Definitions matching current Governing Body rules
+        const ROLES = {
+            publicador: { name: 'Publicador de Congregación', goal: 0, badge: 'Publicador', isPrecursor: false },
+            auxiliar_campana: { name: 'Precursor Auxiliar (Campaña)', goal: 15, badge: 'Auxiliar 15h', isPrecursor: true },
+            auxiliar: { name: 'Precursor Auxiliar Indefinido', goal: 30, badge: 'Auxiliar 30h', isPrecursor: true },
+            regular: { name: 'Precursor Regular', goal: 50, badge: 'Precursor 50h', isPrecursor: true },
+            especial: { name: 'Precursor Especial / Misionero', goal: 100, badge: 'Especial 100h', isPrecursor: true }
+        };
+
+        const INITIAL_PASSCODE = '1914';
+
+        let appState = {
+            role: 'publicador',
+            publisherParticipated: true,
+            studiesCount: 0,
+            entries: [], // { id, date, hours, minutes, studies, notes }
+            announcements: [],
+            adminPasscode: INITIAL_PASSCODE
+        };
+
+        // Stopwatch State variables
+        let stopwatchTimer = null;
+        let stopwatchSeconds = 0;
+        let isStopwatchRunning = false;
+
+        window.onload = function () {
+            loadThemePreference();
+            loadStateFromStorage();
+            initDateFields();
+            updateServiceYearBadge();
+            updateUI();
+        };
+
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('jw_theme') || 'light';
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                icon.className = 'fa-solid fa-sun text-base';
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-moon text-base';
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-moon text-base';
+                localStorage.setItem('jw_theme', 'light');
+            } else {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                icon.className = 'fa-solid fa-sun text-base';
+                localStorage.setItem('jw_theme', 'dark');
+            }
+        }
+
+        function loadStateFromStorage() {
+            const saved = localStorage.getItem('jw_service_app_2026_data');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appState = { ...appState, ...parsed };
+                } catch(e) {
+                    console.error("Error loading app data", e);
+                }
+            } else {
+                // Initial Default announcements
+                appState.announcements = [
+                    {
+                        id: 'def-1',
+                        title: 'Visita del Superintendente de Circuito',
+                        body: 'Preparémonos para la visita especial de este mes. Acompañemos a las salidas de predicación.',
+                        type: 'visita',
+                        date: new Date().toLocaleDateString()
+                    }
+                ];
+                saveStateToStorage();
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('jw_service_app_2026_data', JSON.stringify(appState));
+        }
+
+        function updateServiceYearBadge() {
+            const now = new Date();
+            let year = now.getFullYear();
+            // Service Year starts September 1st
+            if (now.getMonth() < 8) { // Jan (0) to Aug (7)
+                document.getElementById('serviceYearBadge').innerHTML = `<i class="fa-regular fa-calendar-check text-[10px]"></i> Año de Servicio ${year-1}-${year}`;
+            } else {
+                document.getElementById('serviceYearBadge').innerHTML = `<i class="fa-regular fa-calendar-check text-[10px]"></i> Año de Servicio ${year}-${year+1}`;
+            }
+        }
+
+        function initDateFields() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('entryDate').value = `${year}-${month}-${day}`;
+
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            document.getElementById('currentMonthYearLabel').textContent = `${monthNames[today.getMonth()]} ${year}`;
+        }
+
+        function updateUI() {
+            const currentRole = ROLES[appState.role] || ROLES.publicador;
+
+            document.getElementById('headerRoleBadge').textContent = currentRole.badge;
+            document.getElementById('roleTitleDisplay').textContent = currentRole.name;
+
+            const precursorProgressBox = document.getElementById('precursorProgressBox');
+            const publisherParticipationBox = document.getElementById('publisherParticipationBox');
+            const formHoursGroup = document.getElementById('formHoursGroup');
+            const mainMetricDisplay = document.getElementById('mainMetricDisplay');
+            const stopwatchSection = document.getElementById('stopwatchSection');
+
+            // Compute entries for current active month
+            const currentMonthKey = new Date().toISOString().slice(0, 7);
+            const currentMonthEntries = appState.entries.filter(e => e.date.startsWith(currentMonthKey));
+
+            let totalMinutes = 0;
+            let totalStudies = appState.studiesCount || 0;
+
+            currentMonthEntries.forEach(entry => {
+                totalMinutes += (parseInt(entry.hours) || 0) * 60 + (parseInt(entry.minutes) || 0);
+                if (entry.studies) totalStudies = Math.max(totalStudies, entry.studies);
+            });
+
+            const computedHours = Math.floor(totalMinutes / 60);
+            const computedMins = totalMinutes % 60;
+
+            if (currentRole.isPrecursor) {
+                precursorProgressBox.classList.remove('hidden');
+                publisherParticipationBox.classList.add('hidden');
+                formHoursGroup.classList.remove('hidden');
+                stopwatchSection.classList.remove('hidden');
+
+                mainMetricDisplay.innerHTML = `
+                    <span class="text-2xl sm:text-3xl font-extrabold">${computedHours}h ${computedMins}m</span>
+                    <p class="text-[11px] text-blue-200">Meta: ${currentRole.goal} Horas</p>
+                `;
+
+                const goalMins = currentRole.goal * 60;
+                const percent = Math.min(Math.round((totalMinutes / goalMins) * 100), 100);
+
+                document.getElementById('progressBar').style.width = `${percent}%`;
+                document.getElementById('progressPercentageText').textContent = `${percent}% de la meta`;
+
+                const remMinutes = goalMins - totalMinutes;
+                if (remMinutes > 0) {
+                    const remH = Math.floor(remMinutes / 60);
+                    const remM = remMinutes % 60;
+                    document.getElementById('hoursRemainingText').textContent = `Faltan: ${remH}h ${remM}m`;
+                } else {
+                    document.getElementById('hoursRemainingText').textContent = `¡Meta alcanzada! 🎉`;
+                }
+            } else {
+                precursorProgressBox.classList.add('hidden');
+                publisherParticipationBox.classList.remove('hidden');
+                formHoursGroup.classList.add('hidden');
+                stopwatchSection.classList.add('hidden');
+
+                const participated = appState.publisherParticipated;
+                mainMetricDisplay.innerHTML = `
+                    <span class="text-xl sm:text-2xl font-bold ${participated ? 'text-emerald-300' : 'text-amber-300'}">
+                        ${participated ? 'SÍ PARTICIPÓ' : 'PENDIENTE'}
+                    </span>
+                    <p class="text-[11px] text-blue-200">Ministerio del Mes</p>
+                `;
+
+                const btn = document.getElementById('toggleParticipationBtn');
+                if (participated) {
+                    btn.textContent = 'SÍ PARTICIPÉ';
+                    btn.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition shadow-sm bg-emerald-500 text-white';
+                } else {
+                    btn.textContent = 'MARCAR PARTICIPACIÓN';
+                    btn.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition shadow-sm bg-amber-500 text-slate-900';
+                }
+            }
+
+            document.getElementById('entryStudies').value = appState.studiesCount || 0;
+
+            renderAnnouncements();
+            renderHistoryList();
+            updateReportPreview(computedHours, computedMins, totalStudies);
+        }
+
+        function togglePublisherParticipation() {
+            appState.publisherParticipated = !appState.publisherParticipated;
+            saveStateToStorage();
+            updateUI();
+        }
+
+        function adjustStudies(delta) {
+            let val = (appState.studiesCount || 0) + delta;
+            if (val < 0) val = 0;
+            appState.studiesCount = val;
+            document.getElementById('entryStudies').value = val;
+            saveStateToStorage();
+            updateUI();
+        }
+
+        function toggleStopwatch() {
+            if (isStopwatchRunning) {
+                clearInterval(stopwatchTimer);
+                isStopwatchRunning = false;
+                document.getElementById('timerBtnText').textContent = 'Continuar';
+                document.getElementById('timerStartBtn').className = 'flex-1 sm:flex-none bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm';
+            } else {
+                isStopwatchRunning = true;
+                document.getElementById('timerBtnText').textContent = 'Pausar';
+                document.getElementById('timerStartBtn').className = 'flex-1 sm:flex-none bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm';
+                document.getElementById('timerLogBtn').classList.remove('hidden');
+
+                stopwatchTimer = setInterval(() => {
+                    stopwatchSeconds++;
+                    const h = Math.floor(stopwatchSeconds / 3600);
+                    const m = Math.floor((stopwatchSeconds % 3600) / 60);
+                    const s = stopwatchSeconds % 60;
+                    document.getElementById('stopwatchDisplay').textContent = 
+                        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                }, 1000);
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchTimer);
+            isStopwatchRunning = false;
+            stopwatchSeconds = 0;
+            document.getElementById('stopwatchDisplay').textContent = '00:00:00';
+            document.getElementById('timerBtnText').textContent = 'Iniciar';
+            document.getElementById('timerStartBtn').className = 'flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm';
+            document.getElementById('timerLogBtn').classList.add('hidden');
+        }
+
+        function logStopwatchTime() {
+            const h = Math.floor(stopwatchSeconds / 3600);
+            const m = Math.floor((stopwatchSeconds % 3600) / 60);
+
+            document.getElementById('entryHours').value = h;
+            document.getElementById('entryMinutes').value = m;
+            resetStopwatch();
+            showNotification(`¡Anotado ${h}h ${m}m en el formulario!`);
+        }
+
+        function saveServiceEntry(e) {
+            e.preventDefault();
+            const date = document.getElementById('entryDate').value;
+            const isPrecursor = ROLES[appState.role]?.isPrecursor;
+
+            const hours = isPrecursor ? (parseInt(document.getElementById('entryHours').value) || 0) : 0;
+            const minutes = isPrecursor ? (parseInt(document.getElementById('entryMinutes').value) || 0) : 0;
+            const studies = parseInt(document.getElementById('entryStudies').value) || 0;
+            const notes = document.getElementById('entryNotes').value.trim();
+
+            appState.studiesCount = studies;
+
+            if (isPrecursor && hours === 0 && minutes === 0) {
+                alert("Por favor ingresa las horas y minutos de tu servicio.");
+                return;
+            }
+
+            const newEntry = {
+                id: Date.now().toString(),
+                date,
+                hours,
+                minutes,
+                studies,
+                notes
+            };
+
+            appState.entries.unshift(newEntry);
+            saveStateToStorage();
+            updateUI();
+
+            document.getElementById('entryNotes').value = '';
+            showNotification("Registro guardado con éxito.");
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+
+            const isPrecursor = ROLES[appState.role]?.isPrecursor;
+
+            if (appState.entries.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">No hay registros guardados.</div>`;
+                return;
+            }
+
+            appState.entries.forEach(entry => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs";
+                item.innerHTML = `
+                    <div>
+                        <div class="font-bold text-jw-darkBlue dark:text-blue-300">${entry.date} ${isPrecursor ? `- <span class="text-amber-600 dark:text-amber-400">${entry.hours}h ${entry.minutes}m</span>` : ''}</div>
+                        ${entry.notes ? `<div class="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">${entry.notes}</div>` : ''}
+                    </div>
+                    <button onclick="deleteEntry('${entry.id}')" class="text-red-400 hover:text-red-600 p-2">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function deleteEntry(id) {
+            appState.entries = appState.entries.filter(e => e.id !== id);
+            saveStateToStorage();
+            updateUI();
+        }
+
+        function getDynamicGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+
+            if (hour >= 5 && hour < 12) {
+                return "Buenos días hermanito";
+            } else if (hour >= 12 && hour < 19) {
+                return "Buenas tardes hermanito";
+            } else {
+                return "Buenas noches hermanito";
+            }
+        }
+
+        function updateReportPreview(hours, minutes, studies) {
+            const currentRole = ROLES[appState.role] || ROLES.publicador;
+            const greeting = getDynamicGreeting();
+
+            // Obtener el nombre del mes actual en español
+            const currentMonth = new Date().toLocaleString('es-ES', { month: 'long' });
+
+            let reportText = "";
+
+            if (currentRole.isPrecursor) {
+                let totalHoursText = `${hours}`;
+                if (minutes > 0) {
+                    totalHoursText += ` (con ${minutes} min)`;
+                }
+
+                reportText = `${greeting} \nMi informe del mes de ${currentMonth} es\nhoras: ${totalHoursText}\ncursos biblicos: ${studies}\nMuchas gracias`;
+            } else {
+                 reportText = `${greeting} \nMi informe del mes de ${currentMonth} es\nparticipación: Sí\ncursos biblicos: ${studies}\nMuchas gracias`;
+            }
+
+            document.getElementById('formattedReportPreview').textContent = reportText;
+        }
+
+        function copyReportToClipboard() {
+            const text = document.getElementById('formattedReportPreview').textContent;
+            
+            // Clipboard standard with fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification("¡Informe copiado al portapapeles!");
+                }).catch(() => {
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showNotification("¡Informe copiado al portapapeles!");
+            } catch (err) {
+                alert("No se pudo copiar automáticamente. Puedes seleccionar el texto e intentarlo.");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tabContentLog').classList.add('hidden');
+            document.getElementById('tabContentHistory').classList.add('hidden');
+            document.getElementById('tabContentReport').classList.add('hidden');
+
+            document.getElementById('tabBtnLog').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition";
+            document.getElementById('tabBtnHistory').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition";
+            document.getElementById('tabBtnReport').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition";
+
+            if (tab === 'log') {
+                document.getElementById('tabContentLog').classList.remove('hidden');
+                document.getElementById('tabBtnLog').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl bg-jw-lightBlue dark:bg-slate-700 text-jw-darkBlue dark:text-blue-300 transition";
+            } else if (tab === 'history') {
+                document.getElementById('tabContentHistory').classList.remove('hidden');
+                document.getElementById('tabBtnHistory').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl bg-jw-lightBlue dark:bg-slate-700 text-jw-darkBlue dark:text-blue-300 transition";
+            } else if (tab === 'report') {
+                document.getElementById('tabContentReport').classList.remove('hidden');
+                document.getElementById('tabBtnReport').className = "flex-1 py-2 text-xs sm:text-sm font-bold text-center rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 transition";
+            }
+        }
+
+        function openRoleModal() {
+            const currentRole = appState.role || 'publicador';
+            const radios = document.getElementsByName('publisherRole');
+            radios.forEach(r => { if (r.value === currentRole) r.checked = true; });
+            document.getElementById('roleModal').classList.remove('hidden');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').classList.add('hidden');
+        }
+
+        function saveRoleSelection() {
+            const radios = document.getElementsByName('publisherRole');
+            let selected = 'publicador';
+            radios.forEach(r => { if (r.checked) selected = r.value; });
+
+            appState.role = selected;
+            saveStateToStorage();
+            closeRoleModal();
+            updateUI();
+            showNotification("Configuración de rol actualizada.");
+        }
+
+        function renderAnnouncements() {
+            const section = document.getElementById('announcementsSection');
+            const list = document.getElementById('announcementsList');
+
+            if (!appState.announcements || appState.announcements.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            list.innerHTML = '';
+
+            appState.announcements.forEach(item => {
+                let badgeStyle = "bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300";
+                let icon = "fa-bullhorn";
+
+                if (item.type === 'asamblea') { badgeStyle = "bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300"; icon = "fa-people-group"; }
+                if (item.type === 'visita') { badgeStyle = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300"; icon = "fa-user-tie"; }
+                if (item.type === 'campana') { badgeStyle = "bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300"; icon = "fa-flag"; }
+
+                const card = document.createElement('div');
+                card.className = "bg-jw-lightBlue/50 dark:bg-slate-700/50 rounded-xl p-3 border border-blue-100 dark:border-slate-700";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[11px] font-bold ${badgeStyle} px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <i class="fa-solid ${icon}"></i> ${item.title}
+                        </span>
+                        <span class="text-[10px] text-slate-400">${item.date || ''}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">${item.body}</p>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('adminAuthBox').classList.remove('hidden');
+            document.getElementById('adminPanelContent').classList.add('hidden');
+            document.getElementById('adminPassInput').value = '';
+            document.getElementById('adminAuthError').classList.add('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function verifyAdminPass() {
+            const pass = document.getElementById('adminPassInput').value.trim();
+            const currentPasscode = appState.adminPasscode || INITIAL_PASSCODE;
+
+            if (pass === currentPasscode) {
+                document.getElementById('adminAuthBox').classList.add('hidden');
+                document.getElementById('adminPanelContent').classList.remove('hidden');
+                switchAdminTab('announcements');
+                renderAdminAnnouncements();
+            } else {
+                document.getElementById('adminAuthError').classList.remove('hidden');
+            }
+        }
+
+        function switchAdminTab(tab) {
+            const annTab = document.getElementById('adminTabContentAnnouncements');
+            const setTab = document.getElementById('adminTabContentSettings');
+            const btnAnn = document.getElementById('adminTabBtnAnnouncements');
+            const btnSet = document.getElementById('adminTabBtnSettings');
+
+            if (tab === 'announcements') {
+                annTab.classList.remove('hidden');
+                setTab.classList.add('hidden');
+                btnAnn.className = "font-bold text-jw-blue dark:text-blue-300 border-b-2 border-jw-blue pb-1";
+                btnSet.className = "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 pb-1";
+            } else {
+                annTab.classList.add('hidden');
+                setTab.classList.remove('hidden');
+                btnSet.className = "font-bold text-jw-blue dark:text-blue-300 border-b-2 border-jw-blue pb-1";
+                btnAnn.className = "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 pb-1";
+            }
+        }
+
+        function updateAdminPasscode() {
+            const newPass = document.getElementById('newAdminPassInput').value.trim();
+            if (!newPass || newPass.length < 3) {
+                alert("Por favor ingresa una clave válida de al menos 3 caracteres.");
+                return;
+            }
+
+            appState.adminPasscode = newPass;
+            saveStateToStorage();
+            document.getElementById('newAdminPassInput').value = '';
+            showNotification("¡Clave de administrador actualizada!");
+        }
+
+        function saveAnnouncement(e) {
+            e.preventDefault();
+            const id = document.getElementById('announcementEditId').value;
+            const title = document.getElementById('announcementTitle').value.trim();
+            const body = document.getElementById('announcementBody').value.trim();
+            const type = document.getElementById('announcementType').value;
+
+            if (id) {
+                const idx = appState.announcements.findIndex(a => a.id === id);
+                if (idx !== -1) {
+                    appState.announcements[idx] = { id, title, body, type, date: new Date().toLocaleDateString() };
+                }
+            } else {
+                appState.announcements.unshift({
+                    id: Date.now().toString(),
+                    title,
+                    body,
+                    type,
+                    date: new Date().toLocaleDateString()
+                });
+            }
+
+            saveStateToStorage();
+            updateUI();
+            renderAdminAnnouncements();
+
+            document.getElementById('announcementEditId').value = '';
+            document.getElementById('announcementTitle').value = '';
+            document.getElementById('announcementBody').value = '';
+            document.getElementById('announcementSubmitBtn').textContent = 'Publicar Anuncio';
+            showNotification("Anuncio guardado.");
+        }
+
+        function editAnnouncement(id) {
+            const item = appState.announcements.find(a => a.id === id);
+            if (!item) return;
+
+            document.getElementById('announcementEditId').value = item.id;
+            document.getElementById('announcementTitle').value = item.title;
+            document.getElementById('announcementBody').value = item.body;
+            document.getElementById('announcementType').value = item.type;
+            document.getElementById('announcementSubmitBtn').textContent = 'Guardar Cambios';
+        }
+
+        function deleteAnnouncement(id) {
+            appState.announcements = appState.announcements.filter(a => a.id !== id);
+            saveStateToStorage();
+            updateUI();
+            renderAdminAnnouncements();
+        }
+
+        function renderAdminAnnouncements() {
+            const container = document.getElementById('adminAnnouncementsList');
+            container.innerHTML = '';
+
+            if (appState.announcements.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">No hay anuncios activos.</p>`;
+                return;
+            }
+
+            appState.announcements.forEach(a => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs";
+                row.innerHTML = `
+                    <div>
+                        <div class="font-bold text-slate-800 dark:text-slate-200">${a.title}</div>
+                        <div class="text-slate-500 dark:text-slate-400 text-[11px]">${a.body}</div>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="editAnnouncement('${a.id}')" class="text-blue-600 p-1 hover:text-blue-800"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteAnnouncement('${a.id}')" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function showNotification(msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 bg-jw-darkBlue text-white text-xs px-4 py-3 rounded-xl shadow-xl z-50 flex items-center gap-2 transition-all duration-300";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
